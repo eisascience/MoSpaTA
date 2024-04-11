@@ -23,4 +23,5 @@ Suggests:
     devtools,
     RColorBrewer
 Remotes:
-    eisascience/scCustFx
+    eisascience/scCustFx,
+    eisascience/MoSpaTA
