@@ -6,7 +6,7 @@ Maintainer: The package maintainer <mahyarie@ohsu.edu>
 Description: The goal of this app is to explore the transcriptional landscape of the Testis.
 License: `use_gpl3_license()`
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Depends:

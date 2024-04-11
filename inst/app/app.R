@@ -6,7 +6,7 @@ library(shinydashboard)
 
 library(ggplot2)
 # library(data.table)
-# library(ggrepel)
+library(ggrepel)
 # library(viridis)
 # library(ggnewscale)
 # library(RColorBrewer)
@@ -64,7 +64,7 @@ pathi = getwd()
 
 # Define UI for application that draws a histogram
 ui <- dashboardPage(skin="red",
-                    dashboardHeader(title = "MoSpaTA v0.1A"),
+                    dashboardHeader(title = "MoSpaTA v0.2A"),
                     #https://rstudio.github.io/shinydashboard/appearance.html#icons
                     dashboardSidebar(
                       sidebarMenu(
@@ -289,6 +289,7 @@ server <- function(input, output, session) {
   source("app_InfoBox.R",local = TRUE)
   source("app_Fxs.R",local = TRUE)
   source("app_Figs_UMAP.R",local = TRUE)
+  source("app_Figs_SDA.R",local = TRUE)
   
 
   

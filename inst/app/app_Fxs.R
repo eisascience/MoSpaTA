@@ -76,6 +76,22 @@ Load_SDA <- function(envv, input, session){
 }
 
 
+Load_genes <- function(envv, input, session){
+  
+  # print(getwd())
+  
+  if(is.null(envv$genes)) {
+    
+
+    envv$genes = readRDS("./data/genes.rds")
+    
+  } else {
+    print("genes already leaded ")
+  }
+  
+  return(envv)
+  
+}
 
 
 ImputeSDA2SerV2 <- function(SerObj, sda_loadings, keepComps=NULL, sdaObjID="", 
@@ -134,7 +150,7 @@ ImputeSDA2SerV2 <- function(SerObj, sda_loadings, keepComps=NULL, sdaObjID="",
 
 plot_loadings_coordinates <- function(SDARedDataLS,
          reduction,
-         mart = NULL,
+         # mart = NULL,
          genes = NULL,
          dimN,
          highlight_genes = NULL, 
@@ -142,15 +158,15 @@ plot_loadings_coordinates <- function(SDARedDataLS,
          data_set = "hsapiens_gene_ensembl", #mmulatta_gene_ensembl
          invertWeights=F, includeUnMapped = T, geneLocPath=NULL ) {
   
-  library(biomaRt)
-  library(ggplot2)
-  library(ggrepel)
+  # library(biomaRt)
+  # library(ggplot2)
+  # library(ggrepel)
   
   # Use the Ensembl Mart for human genes
-  if(is.null(mart)) mart <- useMart("ensembl", data_set)
+  # if(is.null(mart)) mart <- useMart("ensembl", data_set)
   
   # Get gene coordinates
-  if(is.null(genes)) genes <- getBM(attributes = c("chromosome_name", "start_position", "end_position"), mart = mart)
+  # if(is.null(genes)) genes <- getBM(attributes = c("chromosome_name", "start_position", "end_position"), mart = mart)
   
   # Calculate chromosome lengths
   chromosomes <- unique(genes$chromosome_name)
@@ -177,24 +193,24 @@ plot_loadings_coordinates <- function(SDARedDataLS,
       gene_locations = readRDS(geneLocPath)
       
     } 
-    if(!file.exists(geneLocPath)){
-      print("file does not exist, downloading new results")
-      
-      gene_locations <- SDAtools:::get.location(
-        gene.symbols = Genes2Map,
-        data_set = data_set,
-        gene_name = "external_gene_name"
-      )
-      
-      saveRDS(gene_locations, geneLocPath)
-    }
+    # if(!file.exists(geneLocPath)){
+    #   print("file does not exist, downloading new results")
+    #   
+    #   gene_locations <- SDAtools:::get.location(
+    #     gene.symbols = Genes2Map,
+    #     data_set = data_set,
+    #     gene_name = "external_gene_name"
+    #   )
+    #   
+    #   saveRDS(gene_locations, geneLocPath)
+    # }
   } else{
     # if(is.null(geneLocPath)){
-    gene_locations <- SDAtools:::get.location(
-      gene.symbols = Genes2Map,
-      data_set = data_set,
-      gene_name = "external_gene_name"
-    )
+    # gene_locations <- get.location(
+    #   gene.symbols = Genes2Map,
+    #   data_set = data_set,
+    #   gene_name = "external_gene_name"
+    # )
     # } 
   }
   
@@ -283,3 +299,6 @@ plot_loadings_coordinates <- function(SDARedDataLS,
   
   return(P)
 }
+
+
+

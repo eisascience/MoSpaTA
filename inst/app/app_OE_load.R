@@ -29,28 +29,30 @@ observeEvent(input$BiomaRtLoad, {
   
   # loadStatus("Loading data...")
   # Disable the button while loading to prevent repeated clicks
-  shinyjs::disable("loadData")
+  # shinyjs::disable("loadData")
   
   # BioMart related operations
-  library(biomaRt)
-  envv$mart <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
-  envv$genes <- getBM(attributes = c("chromosome_name", "start_position", "end_position"), mart = mart)
-  
+  # library(biomaRt)
+  # envv$mart <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+  # envv$genes <- getBM(attributes = c("chromosome_name", "start_position", "end_position"), mart = mart)
+  envv = Load_genes(envv)
+  # envv$genes = readRDS("./data/genes.rds")
   # Assuming 'genes' and 'mart' are to be used in global environment
   # assign("genes", genes, envir = .GlobalEnv)
   # assign("mart", mart, envir = .GlobalEnv)
   
   # Re-enable button and update status after load
-  shinyjs::enable("loadData")
+  # shinyjs::enable("loadData")
   # loadStatus("Data loaded successfully.")
 })
 
 observeEvent(input$AllInputs, {
   
-  envv$InfoBox_Load = "Loaded all inputs, MoSTA, Spatial, and SDA"
+  envv$InfoBox_Load = "Loaded all inputs: MoSTA, Spatial, SDA, and BiomaRt"
+  
   
   envv = Load_MoDSTA(envv)
   envv = Load_STseqMT1(envv)
   envv = Load_SDA(envv)
-  
+  envv = Load_genes(envv)
 })
