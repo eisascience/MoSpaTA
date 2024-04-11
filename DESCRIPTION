@@ -16,12 +16,10 @@ Imports:
     data.table,
     dplyr,
     ggplot2,
-    ggforce,
     Seurat
 Suggests:
     ggvis,
     devtools,
     RColorBrewer
 Remotes:
-    eisascience/scCustFx,
     eisascience/MoSpaTA

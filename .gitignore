@@ -1,4 +1,5 @@
 MoSpaTA.Rproj
+/inst/app/rsconnect/shinyapps.io/conradlab/MoSpaTA.dcf
 .Rproj
 .Rproj.user
 .Rhistory
@@ -10,3 +11,4 @@ MoSpaTA.Rproj
 /inst/app/.DS_Store
 /inst/.DS_Store
 .DS_Store
+renv.lock
