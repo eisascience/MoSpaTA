@@ -1,0 +1,12 @@
+name: MoSpaTA
+title: MoSpaTA
+username: conradlab
+account: conradlab
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11725480
+bundleId:
+url: https://conradlab.shinyapps.io/MoSpaTA/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

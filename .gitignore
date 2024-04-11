@@ -3,4 +3,7 @@
 .RData
 .Ruserdata
 .Rproj
-
+/inst/no_app
+/inst/app/data
+/inst/app/.DS_Store
+/inst/.DS_Store
