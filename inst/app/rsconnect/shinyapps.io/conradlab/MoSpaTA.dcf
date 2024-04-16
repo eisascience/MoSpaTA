@@ -5,7 +5,7 @@ account: conradlab
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 11725480
-bundleId:
+bundleId: 8483310
 url: https://conradlab.shinyapps.io/MoSpaTA/
 version: 1
 asMultiple: FALSE

@@ -70,9 +70,6 @@ output$GeneExpr_MoDSTA_UMAP <- renderPlot({
 })
 
 
-
-
-
 ## Gene Expr MoDSTA Integrated UMAP ------
 
 output$GeneExpr_MoDSTA_UMAPintg <- renderPlot({
@@ -213,7 +210,6 @@ output$GeneExpr_STseqMT1_Spatial <- renderPlot({
   
   GeneSet <- input$GeneSet
   
-  
   if(length(grep(",", GeneSet)) == 0){
     
     if(length(grep('"', GeneSet)) + length(grep("'", GeneSet))>0) {
@@ -232,50 +228,87 @@ output$GeneExpr_STseqMT1_Spatial <- renderPlot({
   
   print(GeneSet)
   
+  
+  
+ 
+ 
+  
   if(is.null(envv$MSTseqCells1) | length(GeneSet) < 1){
     plot(x=0, y=0, main="Load STseq MT1 dataset")
   } else {
     
-    if(length(GeneSet)==1) {
+    if(input$ExprThresh %in% c(0, 1) ){
       
-      SpatialFeaturePlot(envv$MSTseqCells1 , features = GeneSet[1], 
-                  # raster = T, raster.dpi = c(800, 800),
-                  max.cutoff = 'q99', min.cutoff = 'q01')  +
+      if(length(GeneSet)==1) {
+        
+        SpatialFeaturePlot(envv$MSTseqCells1 , features = GeneSet[1], 
+                           # raster = T, raster.dpi = c(800, 800),
+                           max.cutoff = 'q99', min.cutoff = 'q01')  +
+          theme_classic(base_size = 14) +
+          theme(axis.line = element_blank(),
+                axis.text.x = element_blank(),
+                axis.text.y = element_blank(),
+                axis.ticks = element_blank(),
+                axis.title = element_blank() #,plot.title = element_blank()
+          )  &
+          ggplot2::scale_colour_gradientn(colours = c("navy", "darkblue", "dodgerblue", "gold", "red", "maroon"))
+        
+      } else{
+        
+        envv$MSTseqCells1$SummedExpr = colSums(GetAssayData(envv$MSTseqCells1, assay = "SCT", layer = "data")[GeneSet, ])
+        
+        SpatialFeaturePlot(envv$MSTseqCells1 , features = "SummedExpr",
+                           # raster = T, raster.dpi = c(800, 800),
+                           max.cutoff = 'q99', min.cutoff = 'q01')  +
+          theme_classic(base_size = 14) +
+          theme(axis.line = element_blank(),
+                axis.text.x = element_blank(),
+                axis.text.y = element_blank(),
+                axis.ticks = element_blank(),
+                axis.title = element_blank() #,plot.title = element_blank()
+          )  &
+          ggplot2::scale_colour_gradientn(colours = c("navy", "darkblue", "dodgerblue", "gold", "red", "maroon"))
+        
+      } 
+      
+    } else {
+      # when threshold is not 0 or 1
+      
+      if(length(GeneSet)==1) {
+        envv$MSTseqCells1$SummedExpr = GetAssayData(envv$MSTseqCells1, assay = "SCT", layer = "data")[GeneSet, ]
+        
+      } else {
+        envv$MSTseqCells1$SummedExpr = colSums(GetAssayData(envv$MSTseqCells1, assay = "SCT", layer = "data")[GeneSet, ])
+        
+      }
+      envv$MSTseqCells1$SummedExprBL = ifelse(envv$MSTseqCells1$SummedExpr>max(envv$MSTseqCells1$SummedExpr) * input$ExprThresh,
+                                              "Above", "Below")
+      
+      SpatialDimPlot(envv$MSTseqCells1 , 
+                     group.by = "SummedExprBL",
+      ) +facet_wrap(~SummedExprBL, ncol=4) +
         theme_classic(base_size = 14) +
-        theme(axis.line = element_blank(),
+        guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+        theme(legend.position = "none",
+              axis.line = element_blank(),
               axis.text.x = element_blank(),
               axis.text.y = element_blank(),
               axis.ticks = element_blank(),
               axis.title = element_blank() #,plot.title = element_blank()
-        )  &
-        ggplot2::scale_colour_gradientn(colours = c("navy", "darkblue", "dodgerblue", "gold", "red", "maroon"))
+        ) + ggtitle(paste0("Threshold cut above: ", round(max(envv$MSTseqCells1$SummedExpr) * input$ExprThresh,3)))
       
-    } else{
+
       
-      envv$MSTseqCells1$SummedExpr = colSums(GetAssayData(envv$MSTseqCells1, assay = "SCT", layer = "data")[GeneSet, ])
       
-      SpatialFeaturePlot(envv$MSTseqCells1 , features = "SummedExpr",
-                  # raster = T, raster.dpi = c(800, 800),
-                   max.cutoff = 'q99', min.cutoff = 'q01')  +
-        theme_classic(base_size = 14) +
-        theme(axis.line = element_blank(),
-              axis.text.x = element_blank(),
-              axis.text.y = element_blank(),
-              axis.ticks = element_blank(),
-              axis.title = element_blank() #,plot.title = element_blank()
-        )  &
-        ggplot2::scale_colour_gradientn(colours = c("navy", "darkblue", "dodgerblue", "gold", "red", "maroon"))
       
     }
+   
     
     
     
   }
   
 })
-
-
-
 
 ## Celltype on Integrated UMAP ------
 
@@ -300,7 +333,97 @@ output$CellType_MoDSTA_UMAPintg  <- renderPlot({
   
 })
 
+## DatasetName on Integrated UMAP ------
 
+output$DatasetName_MoDSTA_UMAPintg  <- renderPlot({
+  
+  DimPlot(envv$MoDSTA , reduction = "umapSup.harmony", 
+          group.by = "DatasetName",
+          repel = T,
+          cols = col_vector, label = F,
+          raster = T, raster.dpi = c(800, 800))  +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+    theme(legend.position = "right",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("DatasetName")
+  
+  
+  
+})
+
+## DatasetGrouping on Integrated UMAP ------
+
+output$DatasetGrouping_MoDSTA_UMAPintg  <- renderPlot({
+  
+  DimPlot(envv$MoDSTA , reduction = "umapSup.harmony", 
+          group.by = "SubjectId",
+          repel = T,
+          cols = col_vector, label = F,
+          raster = T, raster.dpi = c(800, 800))  +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+    theme(legend.position = "right",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("DatasetGrouping")
+  
+  
+  
+})
+
+## Breed on Integrated UMAP ------
+
+output$Breed_MoDSTA_UMAPintg  <- renderPlot({
+  
+  DimPlot(envv$MoDSTA , reduction = "umapSup.harmony", 
+          group.by = "Breed",
+          repel = T,
+          cols = col_vector, label = F,
+          raster = T, raster.dpi = c(800, 800))  +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+    theme(legend.position = "right",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("Breed")
+  
+  
+  
+})
+
+## UnsupClusters on Integrated UMAP ------
+
+output$UnsupClusters_MoDSTA_UMAPintg  <- renderPlot({
+  
+  DimPlot(envv$MoDSTA , reduction = "umapSup.harmony", 
+          group.by = "RNA_snn_res.0.6",
+          repel = T,
+          cols = col_vector, label = F,
+          raster = T, raster.dpi = c(800, 800))  +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=2)) +
+    theme(legend.position = "right",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("RNA_snn_res.0.6")
+  
+  
+  
+})
 
 ## UnsupClusters on STseq MT1 UMAP ------
 
@@ -326,151 +449,26 @@ output$UnSupClusters_STseqMT1_UMAP  <- renderPlot({
 })
 
 
+## UnsupClusters Faceted of spatial on STseq MT1 UMAP ------
 
-
-## SDA Score on Integratred UMAP
-
-output$SDAscore_MoDSTA_UMAPintg <- renderPlot({
+output$UnSupClusters_SpatialFacet_STseqMT1_UMAP  <- renderPlot({
+  
+  SpatialDimPlot(envv$MSTseqCells1 , 
+          group.by = "SCT_snn_res.0.1",
+  ) +facet_wrap(~SCT_snn_res.0.1, ncol=4) +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+    theme(legend.position = "none",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("Transcriptional Groups")
   
   
-  
-  # envv$CompN = as.numeric( strsplit(input$sda.comp.N, "_")[[1]][2])
-  # envv$CompNname = paste0("sda.", selected_SDArun, ".V", envv$CompN)
-  # CompNname = envv$CompNname
-  # 
-  # print(CompNname)
-  
-
-  selected_SDArun = input$sda.run
-  selected_compN = input$sda.comp.N
-  
-
-  
-  
-  if(is.null(envv$MoDSTA) | is.null(envv$commands$SDAproj_MoDSTA)){
-    plot(x=0, y=0, main="Load MoDSTA dataset")
-  } else {
-    
-    # # Split the component number from its label
-    # compN <- as.numeric(strsplit(selected_compN(), " ")[[1]][2])
-    # 
-    # # Construct the dynamic variable name
-    # compNname <- paste0("sda.", selected_SDArun(), ".V", compN)
-    
-    CompN = as.numeric( strsplit(selected_compN, "_")[[1]][2])
-    CompNname = paste0("sda.", selected_SDArun, ".V", CompN)
-    
-    FeaturePlot(envv$MoDSTA , reduction = "umapSup.harmony", features = CompNname, order = T, max.cutoff = 'q99', min.cutoff = 'q01')  +
-      theme_classic(base_size = 14) +
-      theme(axis.line = element_blank(),
-            axis.text.x = element_blank(),
-            axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.title = element_blank() #,plot.title = element_blank()
-      ) &
-      ggplot2::scale_colour_gradientn(colours = c("navy", "darkblue", "dodgerblue", "gold", "red", "maroon"))
-    
-    
-    
-    
-  }
   
 })
-
-
-
-
-## SDA Score on STseqMT1 UMAP
-
-output$SDAscore_STseqMT1_UMAP <- renderPlot({
-  
-  
-
-  
-  selected_SDArun = input$sda.run
-  selected_compN = input$sda.comp.N
-  
-  
-  
-  
-  if(is.null(envv$MoDSTA) | is.null(envv$commands$SDAproj_MSTseqCells1)){
-    plot(x=0, y=0, main="Load MSTseq1 Cells dataset")
-  } else {
-    
-    # # Split the component number from its label
-    # compN <- as.numeric(strsplit(selected_compN(), " ")[[1]][2])
-    # 
-    # # Construct the dynamic variable name
-    # compNname <- paste0("sda.", selected_SDArun(), ".V", compN)
-    
-    CompN = as.numeric( strsplit(selected_compN, "_")[[1]][2])
-    CompNname = paste0("sda.", selected_SDArun, ".V", CompN)
-    
-    FeaturePlot(envv$MSTseqCells1 , reduction = "umap", features = CompNname, order = T, max.cutoff = 'q99', min.cutoff = 'q01')  +
-      theme_classic(base_size = 14) +
-      theme(axis.line = element_blank(),
-            axis.text.x = element_blank(),
-            axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.title = element_blank() #,plot.title = element_blank()
-      )   &
-      ggplot2::scale_colour_gradientn(colours = c("navy", "darkblue", "dodgerblue", "gold", "red", "maroon"))
-    
-    
-    
-    
-  }
-  
-})
-
-
-
-
-
-## SDA Score on STseqMT1 Spatial
-
-output$SDAscore_STseqMT1_Spatial <- renderPlot({
-  
-  
-  
-  
-  selected_SDArun = input$sda.run
-  selected_compN = input$sda.comp.N
-  
-  
-  
-  
-  if(is.null(envv$MoDSTA) | is.null(envv$commands$SDAproj_MSTseqCells1)){
-    plot(x=0, y=0, main="Load MSTseq1 Cells dataset")
-  } else {
-    
-    # # Split the component number from its label
-    # compN <- as.numeric(strsplit(selected_compN(), " ")[[1]][2])
-    # 
-    # # Construct the dynamic variable name
-    # compNname <- paste0("sda.", selected_SDArun(), ".V", compN)
-    
-    CompN = as.numeric( strsplit(selected_compN, "_")[[1]][2])
-    CompNname = paste0("sda.", selected_SDArun, ".V", CompN)
-    
-    SpatialFeaturePlot(envv$MSTseqCells1, features = CompNname, 
-                       max.cutoff = 'q99', min.cutoff = 'q01')  +
-      theme_classic(base_size = 14) +
-      theme(axis.line = element_blank(),
-            axis.text.x = element_blank(),
-            axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.title = element_blank() #,plot.title = element_blank()
-      )    &
-      ggplot2::scale_colour_gradientn(colours = c("navy", "darkblue", "dodgerblue", "gold", "red", "maroon"))
-    
-    
-    
-    
-  }
-  
-})
-
 
 
 

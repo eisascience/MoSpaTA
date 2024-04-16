@@ -4,6 +4,8 @@ library(shiny)
 library(rclipboard)
 library(shinydashboard)
 
+library(knitr)
+
 library(ggplot2)
 # library(data.table)
 library(ggrepel)
@@ -63,8 +65,8 @@ pathi = getwd()
 
 
 # Define UI for application that draws a histogram
-ui <- dashboardPage(skin="red",
-                    dashboardHeader(title = "MoSpaTA v0.2A"),
+ui <- dashboardPage(skin="yellow",
+                    dashboardHeader(title = "MoSpaTA v0.3A"),
                     #https://rstudio.github.io/shinydashboard/appearance.html#icons
                     dashboardSidebar(
                       sidebarMenu(
@@ -86,10 +88,13 @@ ui <- dashboardPage(skin="red",
                       tags$head(
                         tags$style(HTML("
                                         .content-wrapper {
-                                        background-color: black !important;
+                                        background-color: grey2 !important;
+                                        }
+                                        markdown-content h1, .markdown-content p {
+                                          font-family: Arial, sans-serif;
                                         }
                                         .main-sidebar {
-                                        background-color: black !important;
+                                        background-color: grey2 !important;
                                         }
                                         .multicol .shiny-options-group{
                                         -webkit-column-count: 5; /* Chrome, Safari, Opera */
@@ -102,6 +107,13 @@ ui <- dashboardPage(skin="red",
                                         margin-top: 0px !important;
                                         -webkit-margin-after: 0px !important; 
                                         }
+                                        .markdown-content { 
+                                            width: 100%; 
+                                            max-width: none; 
+                                          }
+                                          .markdown-content * { 
+                                            max-width: 100%;
+                                          }
                                         "))),
                       tabItems(
                         
@@ -111,13 +123,10 @@ ui <- dashboardPage(skin="red",
                         tabItem(tabName = "MainDash",
                                 h2("Main Dashboard"),
                                 fluidRow(
-                                  # valueBoxOutput("InfoBox_Main", width = 6),
-                                  
-                                  # box(,
-                                  #     width = 5, background = "olive"
-                                  #     
-                                  # )
-                                )),
+                               box( uiOutput('MainPageHTML'),
+                                    width = 10)
+                                )
+                                ),
                         
                         ## Load Data tab ------------
                         tabItem(tabName = "LoadData",
@@ -132,7 +141,7 @@ ui <- dashboardPage(skin="red",
                                       actionButton("SDAres", "SDA on MoDSTA"),
                                       actionButton("BiomaRtLoad", "Load BiomaRt Data"),
                                       actionButton("AllInputs", "** Load All **"),
-                                      width = 10, background = "olive")
+                                      width = 10, background = "black")
                                   
                                   )),
                         
@@ -151,6 +160,14 @@ ui <- dashboardPage(skin="red",
                                     width = 10
                                   ),
                                   
+                                  box(
+                                    title = "Threshold Expression, 0 to 100%", status = "primary", solidHeader = TRUE,
+                                    #   collapsible = TRUE,
+                                    sliderInput("ExprThresh", "% of Expression: (default 0, no cutting)",
+                                                min = 0, max = 1, value = 0, step = 0.1),
+                                    width = 5
+                                  ),
+                                  
                                   # box(
                                   #   title = "MoDSTA UMAP Unintegrated", status = "primary", solidHeader = TRUE,
                                   #   collapsible = TRUE,
@@ -165,6 +182,13 @@ ui <- dashboardPage(skin="red",
                                   #   plotOutput("CellType_MoDSTA_UMAPintg"),
                                   #   width = 10
                                   # ),
+                                
+                                  box(
+                                    title = "Spatial Expression on the Stereo-seq Mouse Testis Sample 1", status = "primary", solidHeader = TRUE,
+                                    collapsible = TRUE,
+                                    plotOutput("GeneExpr_STseqMT1_Spatial"),
+                                    width = 10
+                                  ), 
                                   
                                   box(
                                     title = "Expression on The Mouse Developmental Single-cell Testis Atlas (MoDSTA) UMAP", status = "primary", solidHeader = TRUE,
@@ -177,12 +201,6 @@ ui <- dashboardPage(skin="red",
                                     title = "Expression on the Stereo-seq Mouse Testis Sample 1 UMAP", status = "primary", solidHeader = TRUE,
                                     collapsible = TRUE,
                                     plotOutput("GeneExpr_STseqMT1_UMAP"),
-                                    width = 10
-                                  ),
-                                  box(
-                                    title = "Spatial Expression on the Stereo-seq Mouse Testis Sample 1", status = "primary", solidHeader = TRUE,
-                                    collapsible = TRUE,
-                                    plotOutput("GeneExpr_STseqMT1_Spatial"),
                                     width = 10
                                   )
                                   
@@ -201,6 +219,11 @@ ui <- dashboardPage(skin="red",
                                     title = "Celltypes MoDSTA", status = "primary", solidHeader = TRUE,
                                     collapsible = TRUE,
                                     plotOutput("CellType_MoDSTA_UMAPintg"),
+                                    plotOutput("DatasetName_MoDSTA_UMAPintg"),
+                                    plotOutput("DatasetGrouping_MoDSTA_UMAPintg"),
+                                    plotOutput("UnsupClusters_MoDSTA_UMAPintg"),
+                                    plotOutput("Breed_MoDSTA_UMAPintg"),
+                                    
                                     width = 10
                                   )
                                   
@@ -215,6 +238,8 @@ ui <- dashboardPage(skin="red",
                                     title = "Unuspervised Clustering on Spatial (Stereo-seq) of Adult Mouse Testis Sample 1 UMAP", status = "primary", solidHeader = TRUE,
                                     collapsible = TRUE,
                                     plotOutput("UnSupClusters_STseqMT1_UMAP"),
+                                    plotOutput("UnSupClusters_SpatialFacet_STseqMT1_UMAP"),
+                                    
                                     width = 10
                                   )
                                   
@@ -257,6 +282,15 @@ ui <- dashboardPage(skin="red",
                                     
                                     width = 5
                                   ),
+                                  
+                                  box(
+                                    title = "Threshold SDA Score, 0 to 100%", status = "primary", solidHeader = TRUE,
+                                    #   collapsible = TRUE,
+                                    sliderInput("SDAThresh", "% of SDA Score: (default 0, no cutting)",
+                                                min = 0, max = 1, value = 0, step = 0.1),
+                                    width = 5
+                                  ),
+                                  
                                   box(
                                     title = "Score Projection on MoDSTA UMAP", status = "primary", solidHeader = TRUE,
                                     collapsible = TRUE,
@@ -291,7 +325,16 @@ server <- function(input, output, session) {
   source("app_Figs_UMAP.R",local = TRUE)
   source("app_Figs_SDA.R",local = TRUE)
   
-
+  output$MainPageHTML <- renderUI({
+    # includeHTML('MainPage.html')
+    # print(getwd())
+    # tags$iframe(seamless="seamless", src= "./MainPage.html", width=800, height=800)
+    # tags$iframe(seamless = "seamless", src = "./inst/app/MainPage.html", width = "100%", height = "800")
+    
+    HTML(markdown::markdownToHTML(knit('MainPage.md', quiet = TRUE)))
+    
+  })
+  
   
   ### SDA local folder
   output$Select.SDArun <-
@@ -299,11 +342,17 @@ server <- function(input, output, session) {
                                 label = 'SDA Run Name',
                                 choices = names(envv$SDARedDataLS$loadings) ))
   
+  # observe({
+  #   print(input$sda.run)
+  # })
   
   # Reactive expression to track the selected run name
   selected_SDArun <- reactive({
+    # req(input$sda.run)
+    # print(input$sda.run)
     input$sda.run
   })
+ 
 
   ### SDA local folder
   # output$Select.SDAcomponentN <-
@@ -312,7 +361,8 @@ server <- function(input, output, session) {
   #                               choices = paste0("Comp ", 1: nrow(envv$SDARedDataLS$loadings[[output$Select.SDArun]]$loadings)) ))
 
   output$Select.SDAcomponentN <- renderUI({
-    if (!is.null(selected_SDArun()) && !is.null(envv$SDARedDataLS$loadings[[selected_SDArun()]])) {
+    
+    if (!is.null(selected_SDArun())) {
       n_comps <- nrow(envv$SDARedDataLS$loadings[[selected_SDArun()]]$loadings)
       selectInput(inputId = 'sda.comp.N',
                   label = 'SDA Component Number',
@@ -322,6 +372,11 @@ server <- function(input, output, session) {
                   label = 'SDA Component Number',
                   choices = character(0))
     }
+    # req(selected_SDArun())  
+    # n_comps <- nrow(envv$SDARedDataLS$loadings[[selected_SDArun()]]$loadings)
+    # selectInput(inputId = 'sda.comp.N',
+    #             label = 'SDA Component Number',
+    #             choices = paste0("Comp_", 1:n_comps))
   })
  
   # Reactive expression to track the selected run name
@@ -334,6 +389,8 @@ server <- function(input, output, session) {
   #   envv$CompNname = paste0("sda.", selected_SDArun, ".V", CompN)
   # }
   
+  
+
   
 }
 

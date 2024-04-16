@@ -12,3 +12,4 @@ MoSpaTA.Rproj
 /inst/.DS_Store
 .DS_Store
 renv.lock
+inst/app/MainPage.html
