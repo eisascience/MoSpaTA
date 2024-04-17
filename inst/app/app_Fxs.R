@@ -69,6 +69,8 @@ Load_SDA <- function(envv, input, session){
     envv$SDARedDataLS = readRDS("./data/SDARedDataLS_Apr82024.rds")
     names(envv$SDARedDataLS$loadings) = paste0("sda_", names(envv$SDARedDataLS$loadings))
     
+    envv = getTopLoadedSDAgenes(envv, topNfeats=30)
+    
   } else {
     print("SDA results already leaded ")
   }
@@ -300,5 +302,45 @@ plot_loadings_coordinates <- function(SDARedDataLS,
   return(P)
 }
 
+
+
+getTopLoadedSDAgenes <- function(envv, topNfeats){
+  
+  if(is.null(envv$Top_loaded_genes)){
+    
+    Top_Pos = lapply(names(envv$SDARedDataLS$loadings), function(xN){
+      # xN =1
+      tempDF = lapply(1:envv$SDARedDataLS$loadings[[xN]]$ncomp, function(cN){
+        x = envv$SDARedDataLS$loadings[[xN]]$loadings[cN,]
+        c(sort(x, decreasing = T)[1:topNfeats] %>% names())
+      }) %>% data.frame()
+      
+      colnames(tempDF) = paste0("sda.",xN,".V", 1:envv$SDARedDataLS$loadings[[xN]]$ncomp)
+      tempDF
+    }) %>% data.frame()
+    
+    
+    Top_Neg =  lapply(names(envv$SDARedDataLS$loadings), function(xN){
+      # xN =1
+      tempDF = lapply(1:envv$SDARedDataLS$loadings[[xN]]$ncomp, function(cN){
+        x = envv$SDARedDataLS$loadings[[xN]]$loadings[cN,]
+        c(sort(x, decreasing = F)[1:topNfeats] %>% names())
+      }) %>% data.frame()
+      
+      colnames(tempDF) = paste0("sda.",xN,".V", 1:envv$SDARedDataLS$loadings[[xN]]$ncomp)
+      tempDF
+    }) %>% data.frame()
+    
+    
+    
+    envv$Top_loaded_genes = list(Top_Pos = Top_Pos,
+                                 Top_Neg = Top_Neg)
+    
+  }
+  
+  return(envv)
+
+  
+}
 
 

@@ -78,3 +78,65 @@ observeEvent(input$PreviousComp, {
   }
   
 })
+
+# observeEvent(input$Gene2SearchSDA,{
+#   
+#   req(input$Gene2SearchSDA)
+#   req(envv$SDARedDataLS)
+# 
+#    
+#   
+# 
+#   PosHits = lapply(envv$Top_loaded_genes$Top_Pos, function(x){
+#     input$Gene2SearchSDA %in% x
+#   }) %>% unlist() %>% which() %>% names() %>% naturalsort::naturalsort()
+#   
+#   PosHits = gsub("sda.", "", PosHits)
+#   
+#   NegHits = lapply(envv$Top_loaded_genes$Top_Neg, function(x){
+#     input$Gene2SearchSDA %in% x
+#   }) %>% unlist() %>% which() %>% names() %>% naturalsort::naturalsort()
+#   
+#   NegHits = gsub("sda.", "", NegHits)
+#   
+#   
+#   if(length(PosHits)==0) PosHits = "Gene not found top pos loaded"
+#   if(length(NegHits)==0) NegHits = "Gene not found top neg loaded"
+#   
+#   # Update UI with results
+#   output$displayPosHits <- renderText({ PosHits })
+#   output$displayNegHits <- renderText({ NegHits })
+#   
+# })
+
+
+PosHits <- reactive({
+  req(input$Gene2SearchSDA)
+  req(envv$SDARedDataLS)
+  hits = lapply(envv$Top_loaded_genes$Top_Pos, function(x) {
+    input$Gene2SearchSDA %in% x
+  }) %>% unlist() %>% which() %>% names() %>% naturalsort::naturalsort()
+  hits = gsub("sda.", "", hits)
+  if(length(hits) == 0) "Gene not found in top positive loaded" else hits
+})
+
+NegHits <- reactive({
+  req(input$Gene2SearchSDA)
+  req(envv$SDARedDataLS)
+  hits = lapply(envv$Top_loaded_genes$Top_Neg, function(x) {
+    input$Gene2SearchSDA %in% x
+  }) %>% unlist() %>% which() %>% names() %>% naturalsort::naturalsort()
+  hits = gsub("sda.", "", hits)
+  if(length(hits) == 0) "Gene not found in top negative loaded" else hits
+})
+
+# Display the results
+output$displayPosHits <- renderText({ PosHits() })
+output$displayNegHits <- renderText({ NegHits() })
+
+# Ensure the reactive is evaluated at startup
+observe({
+  input$Gene2SearchSDA
+  PosHits()
+  NegHits()
+})
