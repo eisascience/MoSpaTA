@@ -37,6 +37,7 @@ Load_MoDSTA <- function(envv, input, session){
 }
 
 
+
 #' This function loads STseq Spatial omics mouse testis 1
 #' 
 #' @param envv environment list associated with ShinySDA
@@ -56,6 +57,28 @@ Load_STseqMT1 <- function(envv){
   return(envv)
   
 }
+
+
+#' This function loads SlideSeqV1 Spatial omics mouse testis 1
+#' 
+#' @param envv environment list associated with ShinySDA
+#' @param input environment list associated with innput paramters in ShinySDA
+#' @return the updated environment list
+Load_SlideSeqMT1 <- function(envv){
+  
+  
+  if(is.null(envv$MSlideSeqV1CellsWT1)) {
+    
+    envv$MSlideSeqV1CellsWT1 = readRDS( "./data/WT1_serSCTbase_v2_SerRedObj.rds")
+    
+  } else {
+    print("SlideSeqV1 MT1 already leaded ")
+  }
+  
+  return(envv)
+  
+}
+
 
 #' This function loads SDA trained on MoSTA
 #' 

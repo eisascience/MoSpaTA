@@ -1,6 +1,6 @@
 observeEvent(input$Apply2MoDSTA, {
   
-  envv$InfoBox_SDABrowser = "Projected SDA results trained on Mouse scRNA-Seq Testis Atlas (MoSTA)"
+  envv$InfoBox_SDABrowser = "Projected SDA to the Mouse scRNA-Seq Testis Atlas (MoSTA)"
   
   selected_SDArun = input$sda.run
   # selected_compN = input$sda.comp.N
@@ -29,7 +29,7 @@ observeEvent(input$Apply2MoDSTA, {
 
 observeEvent(input$Apply2STseqMT1, {
   
-  envv$InfoBox_SDABrowser = "Projected SDA results trained on Mouse scRNA-Seq Testis Atlas (MoSTA)"
+  envv$InfoBox_SDABrowser = "Projected SDA results to the Mouse StereoSeq Spatial data"
   
   selected_SDArun = input$sda.run
   
@@ -44,6 +44,30 @@ observeEvent(input$Apply2STseqMT1, {
   
   # envv$SDAcomps = colnames(envv$MSTseqCells1@meta.data)[grep("sda.", colnames(envv$MSTseqCells1@meta.data))]
   # envv$SDAcomps = naturalsort::naturalsort(envv$SDAcomps)
+  } else{ 
+    print("selected_SDArun is NULL")
+  }
+  
+})
+
+
+observeEvent(input$Apply2SlideSeqV1MT1, {
+  
+  envv$InfoBox_SDABrowser = "Projected SDA results to the Mouse SlideSeqV1 Spatial data"
+  
+  selected_SDArun = input$sda.run
+  
+  if(!is.null(selected_SDArun)){
+    
+    envv$MSlideSeqV1CellsWT1 = ImputeSDA2SerV2(SerObj = envv$MSlideSeqV1CellsWT1 ,
+                                        sda_loadings = envv$SDARedDataLS$loadings[[selected_SDArun]]$loadings,
+                                        # keepComps = unique(c(1, 2, CompN)),
+                                        sdaObjID = selected_SDArun, plot=F, MakeReduc = F, assay = "SCT")
+    print("Projection complete")
+    envv$commands$SDAproj_MSlideSeqV1CellsWT1 = T
+    
+    # envv$SDAcomps = colnames(envv$MSlideSeqV1CellsWT1@meta.data)[grep("sda.", colnames(envv$MSlideSeqV1CellsWT1@meta.data))]
+    # envv$SDAcomps = naturalsort::naturalsort(envv$SDAcomps)
   } else{ 
     print("selected_SDArun is NULL")
   }
