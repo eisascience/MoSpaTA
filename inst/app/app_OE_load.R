@@ -7,11 +7,27 @@ observeEvent(input$MoDSTA, {
 
 })
 
-observeEvent(input$STseqMouse1, {
+observeEvent(input$SlideSeqV1Mouse1, {
   
   envv$InfoBox_Load = "Loaded SlideSeq V1 Spatial omics mouse testis 1"
   
   envv = Load_SlideSeqMT1(envv)
+  
+})
+
+observeEvent(input$SlideSeqV1Mouse2, {
+  
+  envv$InfoBox_Load = "Loaded SlideSeq V1 Spatial omics mouse testis 2"
+  
+  envv = Load_SlideSeqMT2(envv)
+  
+})
+
+observeEvent(input$SlideSeqV1Mouse3, {
+  
+  envv$InfoBox_Load = "Loaded SlideSeq V1 Spatial omics mouse testis 3"
+  
+  envv = Load_SlideSeqMT3(envv)
   
 })
 
@@ -63,6 +79,8 @@ observeEvent(input$AllInputs, {
   envv = Load_MoDSTA(envv)
   envv = Load_STseqMT1(envv)
   envv = Load_SlideSeqMT1(envv)
+  envv = Load_SlideSeqMT2(envv)
+  envv = Load_SlideSeqMT3(envv)
   envv = Load_SDA(envv)
   envv = Load_genes(envv)
 })

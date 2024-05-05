@@ -77,6 +77,7 @@
 # })
 # 
 
+
 ## Gene Expr MoDSTA Integrated UMAP ------
 
 output$GeneExpr_MoDSTA_UMAPintg <- renderPlot({
@@ -120,9 +121,29 @@ output$GeneExpr_SlideSeqV1MT1_UMAP <- renderPlot({
   
   GeneSet <- input$GeneSet
   
-  gg1 = Render_GeneExpr_SlideSeqV1MT1_UMAP(envv, input, GeneSet)
+  Render_GeneExpr_SlideSeqV1MT1_UMAP(envv, input, GeneSet)
   
-  gg1
+})
+
+
+## Gene Expr SlideSeqV1 WT2 UMAP ------
+
+output$GeneExpr_SlideSeqV1MT2_UMAP <- renderPlot({
+  
+  GeneSet <- input$GeneSet
+  
+  Render_GeneExpr_SlideSeqV1MT2_UMAP(envv, input, GeneSet)
+  
+})
+
+
+## Gene Expr SlideSeqV1 WT3 UMAP ------
+
+output$GeneExpr_SlideSeqV1MT3_UMAP <- renderPlot({
+  
+  GeneSet <- input$GeneSet
+  
+  Render_GeneExpr_SlideSeqV1MT3_UMAP(envv, input, GeneSet)
   
 })
 
@@ -176,5 +197,144 @@ output$UnSupClusters_SpatialFacet_STseqMT1_UMAP  <- renderPlot({
   
 })
 
+
+
+## UnsupClusters on SlideSeqV1MT1 UMAP ------
+
+output$UnSupClusters_SlideSeqV1MT1_UMAP  <- renderPlot({
+  
+  DimPlot(envv$MSlideSeqV1CellsWT1 , reduction = "umap", 
+          group.by = "SCT_snn_res.0.8",
+          repel = T,
+          cols = col_vector, label = T#,raster = T, raster.dpi = c(800, 800)
+  )  +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+    theme(legend.position = "right",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("Transcriptional Groups")
+  
+  
+  
+})
+
+
+## UnsupClusters Faceted of spatial on SlideSeqV1MT1UMAP ------
+
+output$UnSupClusters_SpatialFacet_SlideSeqV1MT1_UMAP  <- renderPlot({
+  
+  SpatialDimPlot(envv$MSlideSeqV1CellsWT1 , 
+                 group.by = "SCT_snn_res.0.8",
+  ) +facet_wrap(~SCT_snn_res.0.8, ncol=5) +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+    theme(legend.position = "none",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("Transcriptional Groups")
+  
+  
+  
+})
+
+
+
+## UnsupClusters on SlideSeqV1MT2 UMAP ------
+
+output$UnSupClusters_SlideSeqV1MT2_UMAP  <- renderPlot({
+  
+  DimPlot(envv$MSlideSeqV1CellsWT2 , reduction = "umap", 
+          group.by = "SCT_snn_res.0.8",
+          repel = T,
+          cols = col_vector, label = T#,raster = T, raster.dpi = c(800, 800)
+  )  +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+    theme(legend.position = "right",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("Transcriptional Groups")
+  
+  
+  
+})
+
+
+## UnsupClusters Faceted of spatial on SlideSeqV1MT2UMAP ------
+
+output$UnSupClusters_SpatialFacet_SlideSeqV1MT2_UMAP  <- renderPlot({
+  
+  SpatialDimPlot(envv$MSlideSeqV1CellsWT2 , 
+                 group.by = "SCT_snn_res.0.8",
+  ) +facet_wrap(~SCT_snn_res.0.8, ncol=5) +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+    theme(legend.position = "none",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("Transcriptional Groups")
+  
+  
+  
+})
+
+
+## UnsupClusters on SlideSeqV1MT3 UMAP ------
+
+output$UnSupClusters_SlideSeqV1MT3_UMAP  <- renderPlot({
+  
+  DimPlot(envv$MSlideSeqV1CellsWT3 , reduction = "umap", 
+          group.by = "SCT_snn_res.0.8",
+          repel = T,
+          cols = col_vector, label = T#,raster = T, raster.dpi = c(800, 800)
+  )  +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+    theme(legend.position = "right",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("Transcriptional Groups")
+  
+  
+  
+})
+
+
+## UnsupClusters Faceted of spatial on SlideSeqV1MT1UMAP ------
+
+output$UnSupClusters_SpatialFacet_SlideSeqV1MT3_UMAP  <- renderPlot({
+  
+  SpatialDimPlot(envv$MSlideSeqV1CellsWT3 , 
+                 group.by = "SCT_snn_res.0.8",
+  ) +facet_wrap(~SCT_snn_res.0.8, ncol=5) +
+    theme_classic(base_size = 14) +
+    guides(colour = guide_legend(override.aes = list(size = 1.5, alpha=1), ncol=1)) +
+    theme(legend.position = "none",
+          axis.line = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title = element_blank() #,plot.title = element_blank()
+    ) + ggtitle("Transcriptional Groups")
+  
+  
+  
+})
 
 

@@ -68,7 +68,7 @@ col_vector3 = c("#e6194b", "#ffe119", "#1B9E77", "#66ADE5", "#FB9A99", "#7570B3"
 library(biomaRt)
 
 
-VersionID = "0.3.4A"
+VersionID = "0.3.5A"
 
 pathi = getwd()
 
@@ -81,9 +81,13 @@ ui <- dashboardPage(skin="yellow",
                       sidebarMenu(
                         menuItem("Introduction", tabName = "MainDash", icon = icon("dashboard"), selected = T),
                         menuItem("Load Data", tabName = "LoadData", icon = icon("save")),
-                        menuItem("Gene Expression", tabName = "GeneExpr", icon = icon("dna")),
+                        menuItem("Gene Expression Spatial", tabName = "GeneExpr", icon = icon("dna")),
+                        menuItem("Gene Expression UMAP", tabName = "GeneExprUMAP", icon = icon("dna")),
                         menuItem("MoDSTA (scRNA-seq) MetaData", tabName = "MoDSTAmeta", icon = icon("wrench")),
                         menuItem("STseqMT1 (Spatial) MetaData", tabName = "STseqMT1meta", icon = icon("wrench")),
+                        menuItem("SlideSeqMT1 (Spatial) MetaData", tabName = "SlideSeqV1MT1meta", icon = icon("wrench")),
+                        menuItem("SlideSeqMT2 (Spatial) MetaData", tabName = "SlideSeqV1MT2meta", icon = icon("wrench")),
+                        menuItem("SlideSeqMT3 (Spatial) MetaData", tabName = "SlideSeqV1MT3meta", icon = icon("wrench")),
                         menuItem("SDA Gene Search", tabName = "SDAgeneSearch", icon = icon("dna")),
                         menuItem("SDA Component Browser", tabName = "SDABrowser", icon = icon("dna")),
                         
@@ -133,8 +137,8 @@ ui <- dashboardPage(skin="yellow",
                         tabItem(tabName = "MainDash",
                                 h2("Main Dashboard"),
                                 fluidRow(
-                               # box( uiOutput('MainPageHTML'),
-                               #      width = 10)
+                                  # box( uiOutput('MainPageHTML'),
+                                  #      width = 10)
                                   #(Version 0.3A)
                                   column(12,
                                          tags$h1(paste0("MoSpaTA Version ", VersionID )),
@@ -149,14 +153,18 @@ ui <- dashboardPage(skin="yellow",
                                            tags$li(tags$strong("MoDSTA (Mouse Developmental Single-cell Testis Atlas):"), " Comprising 177,891 testis cells from 20 publicly available 10X Genomics samples, this dataset includes cells from 2 embryonic, 4 postnatal, and 14 WT adult samples. For performance optimization, MoDSTA has been randomly downsampled to 30,000 cells. Future versions will include integrated analyses combining STseq MT1 and MoDSTA datasets."),
                                            tags$li(tags$strong("STseq MT1:"), " This dataset represents a spatial transcriptomic atlas of a healthy adult wild-type (WT) mouse. The cell-level data are derived from algorithms that define cell boundaries using a DAPI image, covering a total of approximately 35,000 cells to optimize boundary selection and enhance the performance of this interactive atlas."),
                                            tags$li(tags$strong("SlideSeq MT1:"), " This dataset represents a spatial transcriptomic atlas of a healthy adult wild-type (WT) mouse, from 'Dissecting mammalian spermatogenesis using spatial transcriptomics, DOI: 10.1016/j.celrep.2021.109915' paper."),
+                                           tags$li(tags$strong("SlideSeq MT2:"), " Another spatial transcriptomic atlas of a healthy adult wild-type (WT) mouse, from 'Dissecting mammalian spermatogenesis using spatial transcriptomics, DOI: 10.1016/j.celrep.2021.109915' paper."),
+                                           tags$li(tags$strong("SlideSeq MT3:"), " The third spatial transcriptomic atlas of a healthy adult wild-type (WT) mouse, from 'Dissecting mammalian spermatogenesis using spatial transcriptomics, DOI: 10.1016/j.celrep.2021.109915' paper."),
                                            tags$li(tags$strong("Machine Learning on MoDSTA:"), " Using SDA (soft clustering), our machine-learning models learn transcriptional patterns within high-dimensional transcriptomic spaces. Several SDA models have been trained on subsets of MoDSTA to enable specialized analysis.")
                                          ),
                                          tags$h2("User Manual"),
                                          tags$p("Navigate MoSpaTA using the left-side navigation bar to access various features."),
                                          tags$h3("Load Data Tab"),
                                          tags$p("Utilize the five buttons available for data management, with the 'Load All' button recommended for general use. If data loading issues arise, try loading each dataset individually for troubleshooting."),
-                                         tags$h3("Gene Expression Tab"),
-                                         tags$p("Explore gene expression by typing the names of single or multiple genes. View gene expression maps derived from UMAP analyses of MoDSTA and STseq MT1 datasets, along with their spatial representations in the testis."),
+                                         tags$h3("Gene Expression Spatial Tab"),
+                                         tags$p("Explore gene expression by typing the names of single or multiple genes spatially in all datasets"),
+                                         tags$h3("Gene Expression UMAP Tab"),
+                                         tags$p("Explore gene expression in 2D UMAP space of all datasets; use the Gene Expression Spatial Tab to type input genes"),
                                          tags$h3("MoDSTA MetaData Tab"),
                                          tags$p("Access visual representations and metadata related to cell type labels from the MoDSTA dataset."),
                                          tags$h3("STseq MT1 MetaData Tab"),
@@ -196,7 +204,7 @@ ui <- dashboardPage(skin="yellow",
                                          tags$p(".")
                                   )
                                 )
-                                ),
+                        ),
                         
                         ## Load Data tab ------------
                         tabItem(tabName = "LoadData",
@@ -209,12 +217,14 @@ ui <- dashboardPage(skin="yellow",
                                   box(actionButton("MoDSTA", "Mouse Deveopmental scRNASeq Testis Atlas"),
                                       actionButton("STseqMouse1", "Mouse STseq Testis 1"),
                                       actionButton("SlideSeqV1Mouse1", "Mouse SlideSeqV1 Testis 1"),
+                                      actionButton("SlideSeqV1Mouse2", "Mouse SlideSeqV1 Testis 2"),
+                                      actionButton("SlideSeqV1Mouse3", "Mouse SlideSeqV1 Testis 3"),
                                       actionButton("SDAres", "SDA on MoDSTA"),
                                       actionButton("BiomaRtLoad", "Load BiomaRt Data"),
                                       actionButton("AllInputs", "** Load All **"),
                                       width = 10, background = "black")
                                   
-                                  )),
+                                )),
                         
                         ## Gene Expression tab ------------
                         tabItem(tabName = "GeneExpr",
@@ -255,7 +265,7 @@ ui <- dashboardPage(skin="yellow",
                                   #   plotOutput("CellType_MoDSTA_UMAPintg"),
                                   #   width = 10
                                   # ),
-                                
+                                  
                                   box(
                                     title = "Spatial Expression on the Stereo-seq Mouse Testis Sample 1", status = "primary", solidHeader = TRUE,
                                     collapsible = TRUE,
@@ -274,12 +284,43 @@ ui <- dashboardPage(skin="yellow",
                                                  id = "GeneExpr_SlideSeqV1MT1_Spatial_brush",
                                                  resetOnNew = TRUE)),
                                     
-                                    # actionButton("zoomIn", "Zoom In"),
-                                    # actionButton("zoomOut", "Zoom Out"),
-                                    # plotOutput("GeneExpr_SlideSeqV1MT1_Spatial_zoomed"),
                                     
                                     width = 10
                                   ), 
+                                  
+                                  box(
+                                    title = "Spatial Expression on the SlideSeqV1 Mouse Testis Sample 2", status = "primary", solidHeader = TRUE,
+                                    collapsible = TRUE,
+                                    plotOutput("GeneExpr_SlideSeqV1MT2_Spatial", dblclick = "GeneExpr_SlideSeqV1MT2_Spatial_dblclick",
+                                               brush = brushOpts(
+                                                 id = "GeneExpr_SlideSeqV1MT2_Spatial_brush",
+                                                 resetOnNew = TRUE)),
+                                    
+                                    width = 10
+                                  ),
+                                  
+                                  box(
+                                    title = "Spatial Expression on the SlideSeqV1 Mouse Testis Sample 3", status = "primary", solidHeader = TRUE,
+                                    collapsible = TRUE,
+                                    plotOutput("GeneExpr_SlideSeqV1MT3_Spatial", dblclick = "GeneExpr_SlideSeqV1MT3_Spatial_dblclick",
+                                               brush = brushOpts(
+                                                 id = "GeneExpr_SlideSeqV1MT3_Spatial_brush",
+                                                 resetOnNew = TRUE)),
+                                    
+                                    width = 10
+                                  ),
+                                  
+                                  
+                                  
+                                  
+                                  
+                                )),
+                        
+                        ## Gene Expression tab ------------
+                        tabItem(tabName = "GeneExprUMAP",
+                                h2("Gene Expression UMAP plots"),
+                                fluidRow(
+                                  
                                   
                                   box(
                                     title = "Expression on The Mouse Developmental Single-cell Testis Atlas (MoDSTA) UMAP", status = "primary", solidHeader = TRUE,
@@ -300,9 +341,21 @@ ui <- dashboardPage(skin="yellow",
                                     collapsible = TRUE,
                                     plotOutput("GeneExpr_SlideSeqV1MT1_UMAP"),
                                     width = 10
+                                  ),
+                                  
+                                  box(
+                                    title = "Expression on the SlideSeqV1 (Broad-Curio) Mouse Testis Sample 2 UMAP", status = "primary", solidHeader = TRUE,
+                                    collapsible = TRUE,
+                                    plotOutput("GeneExpr_SlideSeqV1MT2_UMAP"),
+                                    width = 10
+                                  ),
+                                  
+                                  box(
+                                    title = "Expression on the SlideSeqV1 (Broad-Curio) Mouse Testis Sample 3 UMAP", status = "primary", solidHeader = TRUE,
+                                    collapsible = TRUE,
+                                    plotOutput("GeneExpr_SlideSeqV1MT3_UMAP"),
+                                    width = 10
                                   )
-                                  
-                                  
                                   
                                 )),
                         
@@ -326,6 +379,7 @@ ui <- dashboardPage(skin="yellow",
                                   )
                                   
                                 )),
+                        
                         ## STseqMT1 Meta tab ------------
                         tabItem(tabName = "STseqMT1meta",
                                 h2("Meta Data Associated to Spatial (Stereo-seq) of Adult Mouse Testis Sample 1"),
@@ -343,6 +397,62 @@ ui <- dashboardPage(skin="yellow",
                                   
                                 )),
                         
+                        
+                        ## SlideSeqV1MT1 Meta tab ------------
+                        tabItem(tabName = "SlideSeqV1MT1meta",
+                                h2("Meta Data Associated to Spatial (SlideSeqV1) of Adult Mouse Testis Sample 1"),
+                                fluidRow(
+
+
+                                  box(
+                                    title = "Unuspervised Clustering on Spatial (Stereo-seq) of Adult Mouse Testis Sample 1 UMAP", status = "primary", solidHeader = TRUE,
+                                    collapsible = TRUE,
+                                    plotOutput("UnSupClusters_SlideSeqV1MT1_UMAP"),
+                                    plotOutput("UnSupClusters_SpatialFacet_SlideSeqV1MT1_UMAP"),
+
+                                    width = 10
+                                  )
+
+                                )),
+
+
+
+                        ## SlideSeqV1MT2 Meta tab ------------
+                        tabItem(tabName = "SlideSeqV1MT2meta",
+                                h2("Meta Data Associated to Spatial (SlideSeqV1) of Adult Mouse Testis Sample 2"),
+                                fluidRow(
+
+
+                                  box(
+                                    title = "Unuspervised Clustering on Spatial (Stereo-seq) of Adult Mouse Testis Sample 2 UMAP", status = "primary", solidHeader = TRUE,
+                                    collapsible = TRUE,
+                                    plotOutput("UnSupClusters_SlideSeqV1MT2_UMAP"),
+                                    plotOutput("UnSupClusters_SpatialFacet_SlideSeqV1MT2_UMAP"),
+
+                                    width = 10
+                                  )
+
+                                )),
+
+
+
+
+                        ## SlideSeqV1MT3 Meta tab ------------
+                        tabItem(tabName = "SlideSeqV1MT3meta",
+                                h2("Meta Data Associated to Spatial (SlideSeqV1) of Adult Mouse Testis Sample 3"),
+                                fluidRow(
+
+
+                                  box(
+                                    title = "Unuspervised Clustering on Spatial (Stereo-seq) of Adult Mouse Testis Sample 3 UMAP", status = "primary", solidHeader = TRUE,
+                                    collapsible = TRUE,
+                                    plotOutput("UnSupClusters_SlideSeqV1MT3_UMAP"),
+                                    plotOutput("UnSupClusters_SpatialFacet_SlideSeqV1MT3_UMAP"),
+
+                                    width = 10
+                                  )
+
+                                )),
                         
                         
                         ## SDABrowser tab ------------
@@ -362,7 +472,7 @@ ui <- dashboardPage(skin="yellow",
                                   box(
                                     title = "Projection", status = "primary", solidHeader = TRUE,
                                     collapsible = TRUE,
-                            
+                                    
                                     actionButton("Apply2MoDSTA", "Apply to MoDSTA"),
                                     actionButton("Apply2STseqMT1", "Apply to STseqMT1"),
                                     actionButton("Apply2SlideSeqV1MT1", "Apply to SlideSeqV1MT1"),
@@ -457,6 +567,7 @@ server <- function(input, output, session) {
   source("app_Figs_Meta_MoDSTA.R",local = TRUE)
   source("app_Figs_FXs.R",local = TRUE)
   source("app_OE_zoom.R",local = TRUE)
+  source("app_load_FXs.R",local = TRUE)
   
   # output$MainPageHTML <- renderUI({
   #   # includeHTML('MainPage.html')
@@ -485,14 +596,14 @@ server <- function(input, output, session) {
     # print(input$sda.run)
     input$sda.run
   })
- 
-
+  
+  
   ### SDA local folder
   # output$Select.SDAcomponentN <-
   #   renderUI(expr = selectInput(inputId = 'sda.comp.N',
   #                               label = 'SDA Component Number',
   #                               choices = paste0("Comp ", 1: nrow(envv$SDARedDataLS$loadings[[output$Select.SDArun]]$loadings)) ))
-
+  
   output$Select.SDAcomponentN <- renderUI({
     
     if (!is.null(selected_SDArun())) {
@@ -511,7 +622,7 @@ server <- function(input, output, session) {
     #             label = 'SDA Component Number',
     #             choices = paste0("Comp_", 1:n_comps))
   })
- 
+  
   # Reactive expression to track the selected run name
   selected_compN <- reactive({
     input$sda.comp.N
@@ -530,8 +641,8 @@ server <- function(input, output, session) {
   #           document.getElementById('scatterPlot').style.zoom = '100%';  # Placeholder for the actual zoom reset logic
   #       ")
   # })
-
- 
+  
+  
   
   
 }
